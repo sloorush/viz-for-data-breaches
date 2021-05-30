@@ -20,7 +20,7 @@ server = app.server
 
 
 ### Load data ###
-data = pd.read_csv('breaches_clean.csv', thousands= ',')
+data = pd.read_csv('./data/breaches_clean.csv', thousands= ',')
 data['SECTOR'] = data['SECTOR'].apply(lambda sector: sector.split(', ')) # create list of sectors
 # sort data by records lost
 #~ data = data['records lost'].sort_values(ascending=False)
