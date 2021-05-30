@@ -35,6 +35,11 @@ cd viz-for-data-breaches
 
 ```shell
 python3 -m venv env
+```
+
+- Activate the venv using
+
+```shell
 source env/bin/activate
 ```
 
@@ -50,4 +55,4 @@ pip3 install -r requirements.txt
 python3 app.py
 ```
 
-Project made for Data Visialization by [Aarush Bhat](https://github.com/r-ush) and [Jyotir Aditya](https://github.com/jyotiradi) under Prof. Meenakshi SP
+### Project made for Data Visialization by [Aarush Bhat](https://github.com/r-ush) and [Jyotir Aditya](https://github.com/jyotiradi) under Prof. Meenakshi SP
