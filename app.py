@@ -56,7 +56,7 @@ app.layout = html.Div(
         dcc.Tab(label='Presentation', children=[
             html.Div(
                 [
-                    html.Img(src=app.get_asset_url('dv.svg'),style = {'textAlign': 'center','max-width':'1400px'},)
+                    html.Img(src=app.get_asset_url('landingPage.svg'),style = {'textAlign': 'center','max-width':'1400px'},)
                 ],
                 style = {'textAlign': 'center','background': '#0e1025', "color":"#fff"},
             )
