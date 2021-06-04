@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-### imports ###
 import dash
 import dash_renderer
 from dash.dependencies import Input, Output, State
@@ -9,27 +8,18 @@ import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
 
-### create dash intance ###
-
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css'] # default styles for Dash apps
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app.title = 'Data breaches Vis'
+app.title = 'Viz for data breaches'
 app.scripts.config.serve_locally = True
 server = app.server
 
 
 ### Load data ###
 data = pd.read_csv('./data/breaches_clean.csv', thousands= ',')
-data['SECTOR'] = data['SECTOR'].apply(lambda sector: sector.split(', ')) # create list of sectors
-# sort data by records lost
-#~ data = data['records lost'].sort_values(ascending=False)
+data['SECTOR'] = data['SECTOR'].apply(lambda sector: sector.split(', '))
 data.sort_values(by='records lost', inplace=True, ascending=False)
-
-
-### selector options ###
-#~ sector_options = list(df['SECTOR'].unique())
-#~ sensitivity_options = list(df['DATA SENSITIVITY'].unique())
 
 methods_list_names = ['All', 'Hacked', 'oops!', 'Poor security', 'Lost device', 'Inside job']
 methods_list_values = ['all', 'hacked', 'oops!', 'poor security', 'lost device ', 'inside job']
@@ -46,9 +36,9 @@ method_color = {
 
 sector_list = ['web', 'retail', 'transport', 'government', 'telecoms',
         'app', 'healthcare', 'tech', 'financial', 'legal', 'gaming', 'media',
-        'academic', 'energy', 'military'] # all options in data
-sector_list.sort() #  Sort alphabetically
-sector_list.insert(0, 'all') # add 'all' options to the front
+        'academic', 'energy', 'military']
+sector_list.sort()
+sector_list.insert(0, 'all')
 sector_options = [ { 'label': sector, 'value': sector} for sector in sector_list ]
 
 
@@ -60,14 +50,22 @@ sensitivity_options = [
     {'value': 5, 'label': 'Full details' },
 ]
 
-
-### Define app layout ###
 app.layout = html.Div(
     [
+        dcc.Tabs([
+        dcc.Tab(label='Presentation', children=[
+            html.Div(
+                [
+                    html.Img(src=app.get_asset_url('dv.png'),style = {'textAlign': 'center','max-width':'1400px'},)
+                ],
+                style = {'textAlign': 'center','background': '#0e1025', "color":"#fff"},
+            )
+        ]),
+        dcc.Tab(label='Web-Security Visualization', children=[
         html.Div(
             [
                 html.H1(
-                    'Data breaches overview',
+                    'Web-Security Visualization',
                     className='twelve columns',
                     id='title'
                 ),
@@ -150,17 +148,19 @@ app.layout = html.Div(
 
         html.Hr(),
 
-        html.Div(id='graphs')
+        html.Div(id='graphs')])
+
+      ])
     ]
 )
 
 
-### Helpers ###
+
 def get_data_for_method (method: str, local_data: pd.DataFrame):
     if method == 'all':
         return local_data
     else:
-        if method in methods_list_values: # Just in case
+        if method in methods_list_values:
             return local_data[local_data['METHOD'] == method]
         else:
             raise Exception('method not found')
@@ -181,7 +181,7 @@ def method_header(method_name: str, records_lost_no: int, companies_affected_no:
                 ),
                 html.H5(
                     [html.Strong(companies_affected_no),' companies affected.'],
-                    #~ f'Total companies affected: "{companies_affected_no}"',
+                    
                     className='four columns',
                     style={'text-align': 'right'}
                 ),
@@ -189,10 +189,6 @@ def method_header(method_name: str, records_lost_no: int, companies_affected_no:
             className='row container'
         )
 
-
-### Callbacks ###
-
-# Selectors -> main graphs
 @app.callback(
             Output('graphs', 'children'),
             [
@@ -204,29 +200,19 @@ def method_header(method_name: str, records_lost_no: int, companies_affected_no:
     )
 def make_main_figure(methods, years, selected_sensitivities, selected_sector):
 
-    # do a local copy of the data to not modify global data var
     local_data = data.copy(deep=True)
 
-    # filter data
-
-    # years slider
     print(f'Years selected: {years}')
     list_years_set = list(range(years[0], years[1] + 1))
     local_data = local_data[local_data['YEAR'].isin(list_years_set)]
 
-    # data sensitivity dropdown
     print(f'Data sensitivity selected: {selected_sensitivities}')
     if selected_sensitivities != sensitivity_options:
         local_data = local_data [ local_data['DATA SENSITIVITY'].apply( lambda sensitivity: sensitivity in selected_sensitivities ) ]
 
-    # sector dropdown selection
     print(f'Sector selected: {selected_sector}')
     if selected_sector != 'all':
         local_data = local_data [ local_data['SECTOR'].apply( lambda sectors: selected_sector in sectors ) ]
-
-
-    # methods graphs
-    # print one figure for each method selected
 
     graphs = []
     print(f'Methods selected: {methods}')
@@ -236,8 +222,6 @@ def make_main_figure(methods, years, selected_sensitivities, selected_sector):
 
         lost_data = method_data['records lost']
         entities = method_data['Entity']
-
-        #~ range_to_show = min(len(lost_data), 50) # Start zoomed if too many companies
 
         trace = dict(
             type='bar',
@@ -253,13 +237,12 @@ def make_main_figure(methods, years, selected_sensitivities, selected_sector):
         layout = {
             'title': f'Records lost by "{method_name}" method(s)',
 
-            'xaxis': {'title': 'Entity',
+            'xaxis': {'title': 'Organization',
                         'titlefont': dict(
                             family='Courier New, monospace',
                             size=18,
                             color='#7f7f7f'
                     ),
-                    #~ 'range': [-1, range_to_show],
             },
             'yaxis': {'title': 'Records lost',
                         'titlefont': dict(
